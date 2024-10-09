@@ -2,12 +2,38 @@ import struct,os,collections
 """
 [Id,Name,year,type,price]
 """
+
 # ANSI color
 Red = '\033[31m'
 Green = '\033[32m'
 Blue = '\033[34m'
 Yellow = '\033[33m'
 Reset = '\033[0m'
+
+# Table
+class ProductTable:
+    def __init__(self, data, header, col_widths):
+        self.data = data
+        self.header = header
+        self.col_widths = col_widths
+
+    def format_row(self, row):
+        return ''.join(f'{str(cell):<{width}}' for cell, width in zip(row, self.col_widths))
+
+    def print_separator(self):
+        print('─' * sum(self.col_widths))
+
+    def display(self):
+        print(self.format_row(self.header))
+        self.print_separator()
+        for row in self.data:
+            print(self.format_row(row))
+def clean_data(raw_data):
+    return [
+        [str(cell).replace('\x00', '') for cell in row]
+        for row in raw_data
+    ]
+
 
 # Done!!
 def save_records(filePath):
@@ -44,7 +70,7 @@ def save_records(filePath):
                     print()
                 
             print(Green + f"Done!! {r_count} record has been created" + Reset)
-
+            print()
 # Done!!
 def add_records(filePath):
     check = os.path.exists(filePath)
@@ -84,6 +110,7 @@ def add_records(filePath):
                         print()
                     
                 print(Green + f"Done!! {r_count} record has been created" + Reset)
+                print()
 
 # Done!!
 def read_records(filePath: str) -> None:
@@ -93,13 +120,14 @@ def read_records(filePath: str) -> None:
 
     with open(filePath, "rb") as file:
         print(Green + "Result:" + Reset)
-        print("______________________________________________________________________")
+        
+        result = []
         
         while True:
             record = file.read(struct.calcsize("i20si20sf"))
             if not record:
                 break
-            
+            nn = []
             record = struct.unpack("i20si20sf", record)
             record = (
                 record[0],                      # ID (int)
@@ -108,10 +136,20 @@ def read_records(filePath: str) -> None:
                 record[3].decode().strip(),     # Type (str)
                 record[4]                       # Price (float)
             )
+            for i in record:
+                nn.append(i)
+            
+            result.append(nn)
 
-            print(f"[ID: {record[0]}, Name: {record[1]}, Year: {record[2]}, Type: {record[3]}, Price: {record[4]:.2f}$]")
-
-        print("______________________________________________________________________")
+        result = clean_data(result)
+        print("────────────────────────────────────────────────────────────")
+        
+        header = ['ID', 'Name', 'Year', 'Type', 'Price($)']
+        col_widths = [10, 20, 10, 10, 10]
+        table = ProductTable(result, header, col_widths)
+        table.display()
+        print("────────────────────────────────────────────────────────────")
+        print("────────────────────────────────────────────────────────────")
         print()
 
 # Done!!
@@ -123,7 +161,7 @@ def find_records(filePath) ->str:
     else:
         find = input('Which record are you looking for? (id,name,year,type,price): ')
         print(Green + "Result:" + Reset)
-        print("______________________________________________________________________")
+        print("────────────────────────────────────────────────────────────")
         n_record = {}
         count = 1
         oo = 0
@@ -146,7 +184,7 @@ def find_records(filePath) ->str:
                continue
         if oo == 0:
             print(Red + f"Not found [{find}] in any records" + Reset)
-        print("______________________________________________________________________")
+        print("────────────────────────────────────────────────────────────")
         print()
  
 # Done!!
@@ -155,7 +193,7 @@ def del_file_record(filePath):
     if check != True:
         print("Error: File Not Found!!")
     else:
-        q = input("Confirm type (Yes,No): ")
+        q = input("Are you sure you want to delete file record? (yes/no)")
         if q.lower() == "yes":
             os.remove(filePath)
             print(Green + f"{filePath} Removed!!" + Reset)
@@ -180,7 +218,7 @@ def edit_record(file):
             records.append(struct.unpack("i20si20sf", record))
 
     print(Green + "Current Records:" + Reset)
-    print("______________________________________________________________________")
+    print("────────────────────────────────────────────────────────────")
     for idx, record in enumerate(records):
         name = record[1].decode().strip()
         id = record[0]
@@ -188,7 +226,7 @@ def edit_record(file):
         _type = record[3].decode().strip()
         price = record[4]
         print(f"{idx + 1}: [Id: {id}, Name: {name}, Year: {year}, Type: {_type}, Price: {price:.2f}$]")
-    print("______________________________________________________________________")
+    print("────────────────────────────────────────────────────────────")
     try:
         index = int(input("Enter the record number you want to edit: ")) - 1
         if index < 0 or index >= len(records):
@@ -246,7 +284,7 @@ def remove_records(file):
             records.append(struct.unpack("i20si20sf", record))
 
     print(Green + "Current Records:" + Reset)
-    print("______________________________________________________________________")
+    print("────────────────────────────────────────────────────────────")
     for idx, record in enumerate(records):
         name = record[1].decode().strip()
         id = record[0]
@@ -254,7 +292,7 @@ def remove_records(file):
         _type = record[3].decode().strip()
         price = record[4]
         print(f"{idx + 1}: [Id: {id}, Name: {name}, Year: {year}, Type: {_type}, Price: {price:.2f}$]")
-    print("______________________________________________________________________")
+    print("────────────────────────────────────────────────────────────")
 
     try:
         index = int(input("Enter the record number you want to remove: ")) - 1
@@ -282,91 +320,70 @@ def remove_records(file):
         print("Invalid input. Please respond with 'yes' or 'no'.")
         print()
     
-# Done!!
-def find_max_min(n_list,choice):
-        y = 0
-        n = ""
-        for i in range(len(n_list["Year"])): 
-            s_year = n_list["Year"][i] 
-            s_name = n_list["Name"][i] 
-            match choice:
-                case "max":
-                    if s_year > y: 
-                        y = s_year  
-                        n = s_name
-                
-                case "min":
-                    if y == 0: 
-                        y = s_year  
-                        n = s_name
-                    elif s_year < y:
-                        y = s_year  
-                        n = s_name
-        return y,n
-def find_expensive(n_list):
-    p = 0
-    n = ""
-    for i in range(len(n_list["Price"])): 
-        s_price = n_list["Price"][i] 
-        s_name = n_list["Name"][i] 
-        
-        if s_price > p: 
-            p = s_price  
-            n = s_name
-
-    return n,p
-# Done!!
+# Done!! 
 def summary_Report(filePath):
-    report = {}
-    numR = 0
-    
     check = os.path.exists(filePath)
     if check != True:
         print("Error: File Not Found!!")
     
     else:
-        with open(filePath,"rb") as file:
+        with open(filePath, "rb") as file:
+            print(Green + "Result:" + Reset)
+            result = []
+        
             while True:
                 record = file.read(struct.calcsize("i20si20sf"))
                 if not record:
                     break
-                else:
-                    record = struct.unpack("i20si20sf",record)
-                    record = record[0],record[1].decode(),record[2],record[3].decode(),record[4]
-                    
-                    if "Id" not in report:
-                        report["Id"] = [(record[0])]
-                        report["Name"] = [(record[1])]
-                        report["Year"] = [(record[2])]
-                        report["Type"] = [(record[3])]
-                        report["Price"] = [(record[4])]
-                        numR += 1
+                nn = []
+                record = struct.unpack("i20si20sf", record)
+                record = (
+                    record[0],                      # ID (int)
+                    record[1].decode().strip(),     # Name (str)
+                    record[2],                      # Year (int)
+                    record[3].decode().strip(),     # Type (str)
+                    record[4]                       # Price (float)
+                )
+                for i in record:
+                    nn.append(i)
+                
+                result.append(nn)
 
-                    else:
-                        report["Id"].append(record[0])
-                        report["Name"].append(record[1])
-                        report["Year"].append(record[2])
-                        report["Type"].append(record[3])
-                        report["Price"].append(record[4])
-                        numR += 1
-                        
-    report['Name'] = [name.replace('\x00', '') for name in report["Name"]]
-    report['Type'] = [t.replace('\x00', '') for t in report['Type']]
-
-    allP = sum([p for p in report["Price"]])
-    allT = dict(collections.Counter([t for t in report["Type"]]))
-    newM = find_max_min(report,"max")
-    oldM = find_max_min(report,"min")
-    expenM = find_expensive(report)
+        result = clean_data(result)
         
-    print(f"""
-:{Green + "Report Summary" + Reset}:
-______________________________________________________________________
-[Number of Records stroed: {numR}]
-[Total value : {allP:.2f}$]
-[The most enpensive product : {expenM[0]}, {expenM[1]:.2f}$]
-[Total Product Type : {allT}]
-[Newest Movie : {newM[1]}, {newM[0]}]
-[Oldest Movie : {oldM[1]}, {oldM[0]}]
-______________________________________________________________________
-""")
+        totalCount = len(result)
+        totalRevenue = 0
+        typeCount = []
+        yearCount = []
+        averagePrice = 0
+
+        
+        for i in result:
+            totalRevenue += float(i[4])
+            
+        for i in result:
+            typeCount.append(i[3])
+
+        for i in result:
+            yearCount.append(i[2])
+
+        averagePrice += totalRevenue / totalCount
+
+        print("─" * 50)
+        print(f"{'Summary Report'}")
+        print("─" * 50)
+        print(f"{'Total Products:'} {totalCount}")
+        print(f"{'Total Revenue:'} ${totalRevenue:}")
+        print("\nProducts Count by Type:")
+        print("─" * 50)
+        for p_type, count in (dict(collections.Counter(typeCount))).items():
+            print(f"{p_type}: {count}")
+        
+        print("\nYearly Breakdown:")
+        print("─" * 50)
+        for year, count in (dict(collections.Counter(yearCount))).items():
+            print(f"{year}: {count}")
+        
+        print(f"\n{'Average Price:'} {averagePrice:.2f}$")
+        print("─" * 50)
+        print()

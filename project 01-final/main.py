@@ -13,17 +13,23 @@ def Run():
     print("____Welcome!!!____\nMovie Store Record")
     #filePath = input("File Path: ")
     filePath = "cd_record.bin"
-    print("__________________")
+    print("──────────────────")
     print("1.Create new File record\n2.Add new records\n3.Show records\n4.Edit record\n5.Find records\n6.Summary Report\n7.Remove record\n8.Delete file record\n9.Quit")
-    print("__________________")
+    print("──────────────────")
     while runing:
-        choice = input("Type your action (1 - 9): ")
+        choice = input("Type your action (1 - 9) (0 for action list): ")
         while True:     
-            if choice not in ["1","2","3","4","5","6","7","8","9"]:
+            if choice not in ["0","1","2","3","4","5","6","7","8","9"]:
                 print(Red + "Error: ValueError { Please Enter 1 to 9 }!!" + Reset)
                 break
             else:
                 match choice:
+                    case "0":
+                        print("──────────────────")
+                        print("1.Create new File record\n2.Add new records\n3.Show records\n4.Edit record\n5.Find records\n6.Summary Report\n7.Remove record\n8.Delete file record\n9.Quit")
+                        print("──────────────────")
+                        print()
+                        break
                     case "1":
                         md.save_records(filePath)
                         break
