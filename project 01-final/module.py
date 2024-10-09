@@ -145,7 +145,7 @@ def find_records(filePath) ->str:
             else:
                continue
         if oo == 0:
-            print(f"Not found [{find}] in any records")
+            print(Red + f"Not found [{find}] in any records" + Reset)
         print("______________________________________________________________________")
         print()
  
@@ -161,6 +161,7 @@ def del_file_record(filePath):
             print(Green + f"{filePath} Removed!!" + Reset)
         else:
             print(Red + "Removing has been Stoped!!" + Reset)
+    print()
 
 # Done!!
 def edit_record(file):
@@ -178,7 +179,8 @@ def edit_record(file):
                 break
             records.append(struct.unpack("i20si20sf", record))
 
-    print("Current Records:")
+    print(Green + "Current Records:" + Reset)
+    print("______________________________________________________________________")
     for idx, record in enumerate(records):
         name = record[1].decode().strip()
         id = record[0]
@@ -186,7 +188,7 @@ def edit_record(file):
         _type = record[3].decode().strip()
         price = record[4]
         print(f"{idx + 1}: [Id: {id}, Name: {name}, Year: {year}, Type: {_type}, Price: {price:.2f}$]")
-
+    print("______________________________________________________________________")
     try:
         index = int(input("Enter the record number you want to edit: ")) - 1
         if index < 0 or index >= len(records):
@@ -205,11 +207,11 @@ def edit_record(file):
 
     print(f"\nEditing record {index + 1}: [Id: {id}, Name: {name}, Year: {year}, Type: {_type}, Price: {price:.2f}$]")
 
-    new_id = input(f"New ID (leave blank to keep '{id}'): ")
-    new_name = input(f"New Name (leave blank to keep '{name}'): ").ljust(20)[:20]
-    new_year = input(f"New Year (current: {year}): ")
-    new_type = input(f"New Type (current: {_type}): ").ljust(20)[:20]
-    new_price = input(f"New Price (current: {price:.2f}): ")
+    new_id = input(f"New ID (leave blank to not change): ")
+    new_name = input(f"New Name (leave blank to not change): ")
+    new_year = input(f"New Year (leave blank to not change): ")
+    new_type = input(f"New Type (leave blank to not change): ")
+    new_price = input(f"New Price (leave blank to not change): ")
 
     new_id = int(new_id) if new_id else id
     new_name = new_name.encode() if new_name.strip() else record_to_edit[1]
@@ -224,7 +226,8 @@ def edit_record(file):
         for record in records:
             file_obj.write(struct.pack("i20si20sf", *record))
 
-    print("Record updated successfully!")
+    print(Green + "Record updated successfully!" + Reset)
+    print()
 
 # Done!!
 def remove_records(file):
@@ -242,7 +245,8 @@ def remove_records(file):
                 break
             records.append(struct.unpack("i20si20sf", record))
 
-    print("Current Records:")
+    print(Green + "Current Records:" + Reset)
+    print("______________________________________________________________________")
     for idx, record in enumerate(records):
         name = record[1].decode().strip()
         id = record[0]
@@ -250,7 +254,8 @@ def remove_records(file):
         _type = record[3].decode().strip()
         price = record[4]
         print(f"{idx + 1}: [Id: {id}, Name: {name}, Year: {year}, Type: {_type}, Price: {price:.2f}$]")
-    
+    print("______________________________________________________________________")
+
     try:
         index = int(input("Enter the record number you want to remove: ")) - 1
         if index < 0 or index >= len(records):
@@ -259,7 +264,6 @@ def remove_records(file):
     except ValueError:
         print("Error: Invalid input. Please enter a number.")
         return
-
     
     confirm = input(f"Are you sure you want to remove the record? (yes/no): ").strip().lower()
 
@@ -268,11 +272,11 @@ def remove_records(file):
         with open(file, "wb") as file_obj:
             for record in records:
                 file_obj.write(struct.pack("i20si20sf", *record))
-            print("Record removed successfully!")
+            print(Green + "Record removed successfully!" + Reset)
             print()
     
     elif confirm == 'no':
-        print("Record removal canceled.")
+        print(Red + "Record removal canceled." + Reset)
         print()
     else:
         print("Invalid input. Please respond with 'yes' or 'no'.")
@@ -311,7 +315,6 @@ def find_expensive(n_list):
             n = s_name
 
     return n,p
-
 # Done!!
 def summary_Report(filePath):
     report = {}

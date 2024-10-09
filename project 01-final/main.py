@@ -1,5 +1,12 @@
 import module as md
 
+# ANSI color
+Red = '\033[31m'
+Green = '\033[32m'
+Blue = '\033[34m'
+Yellow = '\033[33m'
+Reset = '\033[0m'
+
 def Run():
     runing = True
 
@@ -13,7 +20,7 @@ def Run():
         choice = input("Type your action (1 - 9): ")
         while True:     
             if choice not in ["1","2","3","4","5","6","7","8","9"]:
-                print("Error: ValueError { Please Enter 1 to 9 }!!")
+                print(Red + "Error: ValueError { Please Enter 1 to 9 }!!" + Reset)
                 break
             else:
                 match choice:
@@ -43,7 +50,7 @@ def Run():
                         break
                     case "9":
                         runing = False
-                        print("Done!!")
+                        print(Green + "Quit successfully!!!" + Reset)
                         break
 
 if __name__ == "__main__":
